@@ -11,10 +11,10 @@ Dieses Repository enthält ein PowerShell-Script, das Microsoft 365 Endpoints vo
 Das Script `Get-MSEndpoints.ps1`:
 - Ruft die aktuellen MS 365 Endpoints von der Microsoft API ab
 - Gruppiert die Daten nach:
+  - **Service-Bereich**: z.B. `common`, `exchange`, `sharepoint`, `teams`
   - **Adresstyp**: `url`, `ipv4`, `ipv6`
   - **Kategorie**: `opt` (Optimize), `allow` (Allow), `default` (Default)
-  - **Service-Bereich**: z.B. `common`, `exchange`, `sharepoint`, `teams`
-- Erstellt Dateien im Format: `ms365_{{addrType}}_{{category}}_{{serviceArea}}.txt`
+- Erstellt Dateien im Format: `ms365_{{serviceArea}}_{{addrType}}_{{category}}.txt`
 - Speichert alle Listen im Verzeichnis `/lists`
 
 ## Automatische Aktualisierung
@@ -38,9 +38,9 @@ Der Workflow kann auch manuell über die GitHub Actions UI ausgelöst werden.
 ## Beispiel-Dateien
 
 Nach der Ausführung werden Dateien wie diese erstellt:
-- `ms365_url_opt_exchange.txt` - URLs für Exchange (Optimize-Kategorie)
-- `ms365_ipv4_allow_sharepoint.txt` - IPv4-Adressen für SharePoint (Allow-Kategorie)
-- `ms365_ipv6_default_common.txt` - IPv6-Adressen für Common Services (Default-Kategorie)
+- `ms365_exchange_url_opt.txt` - URLs für Exchange (Optimize-Kategorie)
+- `ms365_sharepoint_ipv4_allow.txt` - IPv4-Adressen für SharePoint (Allow-Kategorie)
+- `ms365_common_ipv6_default.txt` - IPv6-Adressen für Common Services (Default-Kategorie)
 
 ## Datenquelle
 
