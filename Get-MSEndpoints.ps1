@@ -6,11 +6,11 @@
 .DESCRIPTION
     This script fetches Microsoft 365 endpoints from the official Microsoft API
     and generates list files that can be used in firewall configurations.
-    Files are named: ms365_{{addrType}}_{{category}}_{{serviceArea}}.txt
+    Files are named: ms365_{{serviceArea}}_{{addrType}}_{{category}}.txt
     where:
+    - serviceArea: common, exchange, sharepoint, teams, etc.
     - addrType: url, ipv4, ipv6
     - category: opt, allow, default
-    - serviceArea: common, exchange, sharepoint, teams, etc.
 
 .PARAMETER OutputDirectory
     Directory where the list files will be saved. Default is './lists'
@@ -38,6 +38,25 @@ $ErrorActionPreference = "Stop"
 if (-not (Test-Path -Path $OutputDirectory)) {
     New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
     Write-Host "Created output directory: $OutputDirectory"
+}
+
+# Delete old files that don't match the new naming schema
+# Old schema: ms365_{{addrType}}_{{category}}_{{serviceArea}}.txt
+# New schema: ms365_{{serviceArea}}_{{addrType}}_{{category}}.txt
+# Pattern to match old schema: ms365_(url|ipv4|ipv6)_(opt|allow|default)_*.txt
+if (Test-Path -Path $OutputDirectory) {
+    $oldFiles = Get-ChildItem -Path $OutputDirectory -Filter "ms365_*.txt" | Where-Object {
+        # Match old schema pattern: starts with addrType after ms365_
+        $_.Name -match '^ms365_(url|ipv4|ipv6)_(opt|allow|default)_'
+    }
+    
+    if ($oldFiles.Count -gt 0) {
+        Write-Host "Removing $($oldFiles.Count) files with old naming schema..."
+        $oldFiles | Remove-Item -Force
+        foreach ($file in $oldFiles) {
+            Write-Host "  Removed: $($file.Name)"
+        }
+    }
 }
 
 # Fetch endpoints from Microsoft API
@@ -75,7 +94,7 @@ foreach ($endpoint in $endpoints) {
     
     # Process URLs
     if ($endpoint.urls) {
-        $key = "url_${category}_${serviceArea}"
+        $key = "${serviceArea}_url_${category}"
         if (-not $groupedData.ContainsKey($key)) {
             $groupedData[$key] = @()
         }
@@ -91,7 +110,7 @@ foreach ($endpoint in $endpoints) {
         foreach ($ip in $endpoint.ips) {
             # Check if it's IPv4 (contains dots but not colons)
             if ($ip -match '^\d+\.\d+\.\d+\.\d+' -and $ip -notmatch ':') {
-                $key = "ipv4_${category}_${serviceArea}"
+                $key = "${serviceArea}_ipv4_${category}"
                 if (-not $groupedData.ContainsKey($key)) {
                     $groupedData[$key] = @()
                 }
@@ -101,7 +120,7 @@ foreach ($endpoint in $endpoints) {
             }
             # Check if it's IPv6 (contains colons)
             elseif ($ip -match ':') {
-                $key = "ipv6_${category}_${serviceArea}"
+                $key = "${serviceArea}_ipv6_${category}"
                 if (-not $groupedData.ContainsKey($key)) {
                     $groupedData[$key] = @()
                 }
