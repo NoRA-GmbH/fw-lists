@@ -1,0 +1,48 @@
+name: Update MS Endpoints
+
+on:
+  # Run daily at 2 AM UTC
+  schedule:
+    - cron: '0 2 * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  update-endpoints:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup PowerShell
+        shell: pwsh
+        run: |
+          Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)"
+      
+      - name: Run MS Endpoints script
+        shell: pwsh
+        run: |
+          ./Get-MSEndpoints.ps1 -OutputDirectory ./lists
+      
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add lists/
+          
+          # Check if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "update ms365 endpoints ($(date +'%Y-%m-%d'))"
+            git push
+          fi
+      
+      - name: Upload lists as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ms365-endpoint-lists
+          path: lists/
+          retention-days: 90

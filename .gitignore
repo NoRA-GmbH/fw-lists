@@ -1,0 +1,20 @@
+# PowerShell temporary files
+*.ps1xml
+
+# Generated lists directory (these will be committed by the workflow)
+# Uncomment the line below if you don't want to commit the lists to the repo
+# lists/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
