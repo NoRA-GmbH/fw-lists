@@ -15,7 +15,7 @@
        - addrType: url, ipv4, ipv6
        - category: opt, allow, default
     
-    2. Port-based files (optional, configured via ServicePortMap): ms365_{{serviceArea}}_{{addrType}}_port{{port}}.txt
+    2. Port-based files (optional, only when GeneratePortListsFor is specified): ms365_{{serviceArea}}_{{addrType}}_port{{port}}.txt
        where:
        - serviceArea: common, exchange, sharepoint, teams, etc.
        - addrType: url, ipv4, ipv6
@@ -23,6 +23,7 @@
        
        These files contain only the IPs or URLs that use the specified port,
        making it easier to configure port-specific firewall rules.
+       By default, no port-specific files are generated.
 
 .PARAMETER OutputDirectory
     Directory where the list files will be saved. Default is './lists'
@@ -31,9 +32,10 @@
     Optional client request ID for API tracking. A random GUID is generated if not provided.
 
 .PARAMETER GeneratePortListsFor
-    Optional array of port-specific lists to generate. Format: "servicearea:addrtype:port" or "servicearea:addrtype:port1-port2-port3"
+    Optional array of port-specific lists to generate in addition to category-based lists.
+    Format: "servicearea:addrtype:port" or "servicearea:addrtype:port1-port2-port3"
     Examples: @("exchange:ipv4:25", "exchange:url:80-443", "teams:url:443")
-    If not specified, uses the default configuration in $ServicePortMap.
+    If not specified, only category-based lists are generated.
 
 .EXAMPLE
     .\Get-MSEndpoints.ps1
@@ -60,15 +62,8 @@ $ErrorActionPreference = "Stop"
 # Only the specified combinations will generate port-specific files
 # This is used when -GeneratePortListsFor parameter is not provided
 # Note: Service areas are: common, exchange, sharepoint, skype (Teams is called "Skype" in the API)
-$ServicePortMap = @{
-    "exchange" = @{
-        "ipv4" = @(25)
-        "url" = @()
-    }
-    "skype" = @{
-        "url" = @()
-    }
-}
+# By default, no port-specific lists are generated (empty configuration)
+$ServicePortMap = @{}
 
 # Parse GeneratePortListsFor parameter if provided
 if ($GeneratePortListsFor.Count -gt 0) {

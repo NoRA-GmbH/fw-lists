@@ -21,14 +21,14 @@ Das Script `Get-MSEndpoints.ps1`:
 
 ### Port-basierte Listen (optional)
 
-Port-basierte Listen können über den Parameter `-GeneratePortListsFor` aktiviert werden. Diese enthalten nur die IPs oder URLs, die den angegebenen Port verwenden.
+Port-basierte Listen können über den Parameter `-GeneratePortListsFor` aktiviert werden. Diese enthalten nur die IPs oder URLs, die den angegebenen Port verwenden und werden **zusätzlich** zu den kategorie-basierten Listen erstellt.
 
 **Beispiele:**
 ```powershell
 # Nur Exchange IPv4 für Port 25
 ./Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25")
 
-# Mehrere Konfigurationen
+# Mehrere Konfigurationen (zusätzlich zu den kategorie-basierten Listen)
 ./Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:url:80-443", "skype:url:443")
 ```
 
@@ -38,7 +38,7 @@ Port-basierte Listen können über den Parameter `-GeneratePortListsFor` aktivie
 - `port`: Einzelner Port oder mehrere Ports getrennt durch `-`
 
 **Standard-Konfiguration (ohne Parameter):**
-Die Default-Konfiguration im Script generiert nur `ms365_exchange_ipv4_port25.txt`.
+Ohne Parameter werden nur die kategorie-basierten Listen generiert, keine port-spezifischen Listen.
 
 ## Automatische Aktualisierung
 
