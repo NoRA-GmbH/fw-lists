@@ -27,7 +27,7 @@ jobs:
       - name: Run MS Endpoints script
         shell: pwsh
         run: |
-          ./Get-MSEndpoints.ps1 -OutputDirectory ./lists
+          ./Get-MSEndpoints.ps1 -OutputDirectory ./lists/ms365 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:ipv6:25")
       
       - name: Commit and push changes
         run: |

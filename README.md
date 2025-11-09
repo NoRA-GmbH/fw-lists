@@ -11,11 +11,34 @@ Dieses Repository enthält ein PowerShell-Script, das Microsoft 365 Endpoints vo
 Das Script `Get-MSEndpoints.ps1`:
 - Ruft die aktuellen MS 365 Endpoints von der Microsoft API ab
 - Gruppiert die Daten nach:
-  - **Service-Bereich**: z.B. `common`, `exchange`, `sharepoint`, `teams`
+  - **Service-Bereich**: z.B. `common`, `exchange`, `sharepoint`, `skype` (Teams)
   - **Adresstyp**: `url`, `ipv4`, `ipv6`
   - **Kategorie**: `opt` (Optimize), `allow` (Allow), `default` (Default)
-- Erstellt Dateien im Format: `ms365_{{serviceArea}}_{{addrType}}_{{category}}.txt`
-- Speichert alle Listen im Verzeichnis `/lists`
+- Erstellt zwei Arten von Dateien:
+  1. **Kategorie-basiert** (immer): `ms365_{{serviceArea}}_{{addrType}}_{{category}}.txt`
+  2. **Port-basiert** (optional): `ms365_{{serviceArea}}_{{addrType}}_port{{port}}.txt`
+- Speichert alle Listen im Verzeichnis `/lists/ms365`
+
+### Port-basierte Listen (optional)
+
+Port-basierte Listen können über den Parameter `-GeneratePortListsFor` aktiviert werden. Diese enthalten nur die IPs oder URLs, die den angegebenen Port verwenden und werden **zusätzlich** zu den kategorie-basierten Listen erstellt.
+
+**Beispiele:**
+```powershell
+# Nur Exchange IPv4 für Port 25
+./Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25")
+
+# Mehrere Konfigurationen (zusätzlich zu den kategorie-basierten Listen)
+./Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:url:80-443", "skype:url:443")
+```
+
+**Format:** `"servicearea:addrtype:port"` oder `"servicearea:addrtype:port1-port2-port3"`
+- `servicearea`: `common`, `exchange`, `sharepoint`, `skype`
+- `addrtype`: `url`, `ipv4`, `ipv6`
+- `port`: Einzelner Port oder mehrere Ports getrennt durch `-`
+
+**Standard-Konfiguration (ohne Parameter):**
+Ohne Parameter werden nur die kategorie-basierten Listen generiert, keine port-spezifischen Listen.
 
 ## Automatische Aktualisierung
 
@@ -25,8 +48,11 @@ Der GitHub Actions Workflow (`.github/workflows/update-endpoints.yml`) führt da
 
 ### Lokal
 ```powershell
-# Standard-Ausführung (Listen werden in ./lists gespeichert)
+# Standard-Ausführung (Listen werden in ./lists/ms365 gespeichert)
 ./Get-MSEndpoints.ps1
+
+# Mit port-spezifischen Listen
+./Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:ipv6:25")
 
 # Mit benutzerdefiniertem Ausgabeverzeichnis
 ./Get-MSEndpoints.ps1 -OutputDirectory "./output"
@@ -38,9 +64,16 @@ Der Workflow kann auch manuell über die GitHub Actions UI ausgelöst werden.
 ## Beispiel-Dateien
 
 Nach der Ausführung werden Dateien wie diese erstellt:
+
+**Kategorie-basiert:**
 - `ms365_exchange_url_opt.txt` - URLs für Exchange (Optimize-Kategorie)
 - `ms365_sharepoint_ipv4_allow.txt` - IPv4-Adressen für SharePoint (Allow-Kategorie)
 - `ms365_common_ipv6_default.txt` - IPv6-Adressen für Common Services (Default-Kategorie)
+
+**Port-basiert (wenn konfiguriert):**
+- `ms365_exchange_ipv4_port25.txt` - IPv4-Adressen für Exchange, die Port 25 verwenden
+- `ms365_exchange_url_port80.txt` - URLs für Exchange, die Port 80 verwenden
+- `ms365_skype_url_port443.txt` - URLs für Skype/Teams, die Port 443 verwenden
 
 ## Datenquelle
 
