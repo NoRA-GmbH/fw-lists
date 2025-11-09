@@ -17,7 +17,7 @@ Das Script `Get-MSEndpoints.ps1`:
 - Erstellt zwei Arten von Dateien:
   1. **Kategorie-basiert** (immer): `ms365_{{serviceArea}}_{{addrType}}_{{category}}.txt`
   2. **Port-basiert** (optional): `ms365_{{serviceArea}}_{{addrType}}_port{{port}}.txt`
-- Speichert alle Listen im Verzeichnis `/lists`
+- Speichert alle Listen im Verzeichnis `/lists/ms365`
 
 ### Port-basierte Listen (optional)
 
@@ -48,8 +48,11 @@ Der GitHub Actions Workflow (`.github/workflows/update-endpoints.yml`) führt da
 
 ### Lokal
 ```powershell
-# Standard-Ausführung (Listen werden in ./lists gespeichert)
+# Standard-Ausführung (Listen werden in ./lists/ms365 gespeichert)
 ./Get-MSEndpoints.ps1
+
+# Mit port-spezifischen Listen
+./Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:ipv6:25")
 
 # Mit benutzerdefiniertem Ausgabeverzeichnis
 ./Get-MSEndpoints.ps1 -OutputDirectory "./output"
