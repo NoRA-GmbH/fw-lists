@@ -4,17 +4,29 @@ Automated provisioning of firewall endpoint lists for firewall configurations.
 
 ## Overview
 
-This repository contains a PowerShell script that retrieves Microsoft 365 endpoints from the official Microsoft API and generates lists that can be used in firewalls.
+This repository contains firewall endpoint lists for various cloud services and custom configurations. Lists can be either:
 
-All Microsoft 365 related lists are stored in a dedicated directory:
+- **Automatically generated** from official APIs (e.g., Microsoft 365 endpoints)
+- **Manually maintained** for custom configurations and other services
 
-- `/lists/ms365` – all lists generated from the official Microsoft 365 endpoint service
+### List organization
 
-Future endpoint sources (for example other cloud services or internal zones) are intended to live in their own subfolders such as `lists/{vendor}/...`.
+Lists are organized by source/vendor in dedicated directories:
 
-## How it works
+- `/lists/ms365` – automatically generated lists from the official Microsoft 365 endpoint service
+- `/lists/{vendor}` – other endpoint sources (cloud services, internal zones, custom configurations, etc.)
 
-The script `Get-MSEndpoints.ps1`:
+Each directory can contain either auto-generated lists (with associated automation scripts) or manually maintained lists, or both.
+
+## List types
+
+### Automatically generated lists
+
+These lists are generated from official APIs and updated automatically. Currently supported:
+
+#### Microsoft 365 lists
+
+The script `Get-MSEndpoints.ps1` generates Microsoft 365 endpoint lists:
 
 - Retrieves the current Microsoft 365 endpoints from the Microsoft API
 - Groups the data by:
@@ -26,9 +38,9 @@ The script `Get-MSEndpoints.ps1`:
      `ms365_{{serviceArea}}_{{addrType}}_{{category}}.txt`
   2. **Port-based** (optional):  
      `ms365_{{serviceArea}}_{{addrType}}_port{{port}}.txt`
-- Stores all Microsoft 365 lists in the directory `/lists/ms365`
+- Stores all lists in the directory `/lists/ms365`
 
-### Port-based lists (optional)
+#### Port-based lists (optional)
 
 Port-based lists can be enabled via the `-GeneratePortListsFor` parameter.  
 These lists contain only the IPs or URLs that use the specified port(s) and are created **in addition** to the category-based lists.
@@ -54,6 +66,30 @@ Where:
 
 **Default configuration (no parameter):**  
 Without `-GeneratePortListsFor`, only the category-based lists are generated and no port-specific lists are created.
+
+### Manually maintained lists
+
+In addition to automatically generated lists, this repository can contain manually maintained endpoint lists for:
+
+- Cloud services other than Microsoft 365
+- Internal network zones and custom configurations
+- Third-party services or applications
+
+Manually maintained lists follow the same naming convention and file format as the auto-generated lists, making them easy to integrate with firewall configurations. Simply add them to the appropriate `/lists/{vendor}` directory.
+
+**Example structure for manually maintained lists:**
+
+```
+lists/
+├── ms365/                              # Auto-generated Microsoft 365 lists
+│   ├── ms365_exchange_url_allow.txt
+│   └── ...
+├── custom/                             # Manually maintained custom lists
+│   ├── custom_internal_ipv4_allow.txt
+│   └── custom_vpn_url_allow.txt
+└── aws/                                # Manually maintained AWS lists (example)
+    └── aws_cloudfront_ipv4_allow.txt
+```
 
 ## Automatic update
 
