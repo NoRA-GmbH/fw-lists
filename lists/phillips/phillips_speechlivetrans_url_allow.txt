@@ -1,0 +1,6 @@
+api2.speechlive.com
+dc.services.visualstudio.com
+sl-stt-realtime-unit-ingestor-as-prod-euw.azurewebsites.net
+sl-stt-realtime-unit-signalr-prod-euw.service.signalr.net
+sl-stt-realtime-unit-transcriber-as-prod-euw.azurewebsites.net
+sl-stt-realtime-sr-api-as-prod-euw.azurewebsites.net

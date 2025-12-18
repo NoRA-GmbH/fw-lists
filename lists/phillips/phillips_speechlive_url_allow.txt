@@ -1,0 +1,8 @@
+speechexec.com
+*.speechexec.com
+speechlive.com
+*.speechlive.com
+*.blob.core.windows.net
+livebroker.speechexec.com
+stspeechidb2cuiweu.blob.core.windows.net
+speechid.b2clogin.com
