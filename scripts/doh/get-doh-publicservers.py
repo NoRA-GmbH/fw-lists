@@ -126,52 +126,67 @@ class DoHListBuilder:
         return excl_set
 
     def _resolve_fqdns(self, fqdns: List[str], record_type: str) -> List[str]:
-        """Resolve FQDNs to IPs with fallback DNS servers."""
-        ips = []
+        """Resolve FQDNs to IPs with multiple lookups to capture round-robin pools.
+        
+        Performs 5 lookups per FQDN to discover all IPs in DNS round-robin configurations.
+        This is critical for blocking lists - missing IPs allow firewall bypass.
+        """
+        all_ips = set()
+        lookup_count = 5  # Lookups per FQDN to discover round-robin IPs
         
         for fqdn in sorted(set(fqdns)):
-            resolved = False
+            fqdn_ips = set()
             
-            # Try each DNS server in order (fallback)
-            for dns_server in (self.dns_servers if self.dns_servers else [None]):
-                # Retry up to 2 times for transient errors
-                for attempt in range(2):
-                    try:
-                        resolver = dns.resolver.Resolver()
-                        if dns_server:
-                            resolver.nameservers = [dns_server]
-                        
-                        # Increase timeouts for more reliable lookups
-                        resolver.timeout = 3.0  # 3 seconds per attempt
-                        resolver.lifetime = 10.0  # 10 seconds total
-                        
-                        answers = resolver.resolve(fqdn, record_type, tcp=False)
-                        for rdata in answers:
-                            ips.append(str(rdata))
-                        resolved = True
-                        break  # Success, no need to retry
-                        
-                    except (DNSException, Exception):
-                        if attempt == 0:
-                            continue  # Retry once
-                        else:
-                            break  # Give up on this DNS server
+            # Multiple lookups to capture all IPs in DNS round-robin pools
+            for lookup_num in range(lookup_count):
+                resolved = False
                 
-                if resolved:
-                    break  # Success, no need to try other DNS servers
+                # Try each DNS server in order (fallback)
+                for dns_server in (self.dns_servers if self.dns_servers else [None]):
+                    # Retry up to 2 times for transient errors
+                    for attempt in range(2):
+                        try:
+                            resolver = dns.resolver.Resolver()
+                            if dns_server:
+                                resolver.nameservers = [dns_server]
+                            
+                            # Increase timeouts for more reliable lookups
+                            resolver.timeout = 3.0  # 3 seconds per attempt
+                            resolver.lifetime = 10.0  # 10 seconds total
+                            
+                            answers = resolver.resolve(fqdn, record_type, tcp=False)
+                            for rdata in answers:
+                                fqdn_ips.add(str(rdata))
+                            resolved = True
+                            break  # Success, no need to retry
+                            
+                        except (DNSException, Exception):
+                            if attempt == 0:
+                                continue  # Retry once
+                            else:
+                                break  # Give up on this DNS server
+                    
+                    if resolved:
+                        break  # Success, no need to try other DNS servers
+                
+                if not resolved:
+                    break  # If first lookup fails, skip remaining lookups
+                
+                # Small delay between lookups to help discover round-robin IPs
+                if lookup_num < lookup_count - 1:
+                    import time
+                    time.sleep(0.1)
             
-            if not resolved and self.dns_servers:
-                # All DNS servers failed for this FQDN
-                pass  # Silently skip
+            # Add all discovered IPs for this FQDN to the global set
+            all_ips.update(fqdn_ips)
         
         # Sort IPs numerically (not lexicographically)
-        unique_ips = set(ips)
         if record_type == "A":
-            return sorted(unique_ips, key=lambda x: ipaddress.IPv4Address(x))
+            return sorted(all_ips, key=lambda x: ipaddress.IPv4Address(x))
         elif record_type == "AAAA":
-            return sorted(unique_ips, key=lambda x: ipaddress.IPv6Address(x))
+            return sorted(all_ips, key=lambda x: ipaddress.IPv6Address(x))
         else:
-            return sorted(unique_ips)
+            return sorted(all_ips)
 
     def _count_entries(self, path: Path) -> int:
         """Count non-empty lines in file."""
