@@ -1,15 +1,15 @@
-name: Update MS Endpoints
+name: Update DoH Endpoints
 
 on:
-  # Run daily at 2 AM UTC
+  # Run weekly on Sunday at 2 AM UTC
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 2 * * 0'
   
   # Allow manual trigger
   workflow_dispatch:
 
 jobs:
-  update-endpoints:
+  update-doh:
     runs-on: ubuntu-latest
     
     permissions:
@@ -19,33 +19,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Setup PowerShell
-        shell: pwsh
-        run: |
-          Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       
-      - name: Run MS Endpoints script
-        shell: pwsh
+      - name: Install Python dependencies
         run: |
-          ./scripts/MSEndpoints/Get-MSEndpoints.ps1 -OutputDirectory ./lists/ms365 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:ipv6:25")
+          pip install requests dnspython
+      
+      - name: Run DoH script
+        run: |
+          cd scripts/doh
+          python get-doh-publicservers.py --output-dir ../../lists/doh --dns-server 1.1.1.1,8.8.8.8
       
       - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add lists/ms365/
+          git add lists/doh/
           
           # Check if there are changes
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "update ms365 endpoints ($(date +'%Y-%m-%d'))"
+            git commit -m "update doh endpoints ($(date +'%Y-%m-%d'))"
             git push
           fi
       
       - name: Upload lists as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ms365-endpoint-lists
-          path: lists/ms365/
+          name: doh-endpoint-lists
+          path: lists/doh/
           retention-days: 90

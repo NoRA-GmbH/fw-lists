@@ -26,7 +26,7 @@
        By default, no port-specific files are generated.
 
 .PARAMETER OutputDirectory
-    Directory where the list files will be saved. Default is './lists/ms365'
+    Directory where the list files will be saved. Default is '../../lists/ms365'
 
 .PARAMETER ClientRequestId
     Optional client request ID for API tracking. A random GUID is generated if not provided.
@@ -45,7 +45,7 @@
 
 param(
     [Parameter(Mandatory = $false)]
-    [string]$OutputDirectory = "./lists/ms365",
+    [string]$OutputDirectory = "../../lists/ms365",
     
     [Parameter(Mandatory = $false)]
     [string]$ClientRequestId = [guid]::NewGuid().ToString(),

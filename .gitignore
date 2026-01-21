@@ -1,6 +1,13 @@
 # PowerShell temporary files
 *.ps1xml
 
+# Python virtual environment
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
 # Generated lists directory (these will be committed by the workflow)
 # Uncomment the line below if you don't want to commit the lists to the repo
 # lists/

@@ -24,9 +24,15 @@ Each directory can contain either auto-generated lists (with associated automati
 
 These lists are generated from official APIs and updated automatically. Currently supported:
 
+#### DoH (DNS-over-HTTPS) lists
+
+The script `scripts/doh/get-doh-publicservers.py` generates DNS-over-HTTPS (DoH) endpoint lists.
+
+For detailed information, usage examples, and parameters, see: [scripts/doh/README.md](scripts/doh/README.md)
+
 #### Microsoft 365 lists
 
-The script `Get-MSEndpoints.ps1` generates Microsoft 365 endpoint lists:
+The script `scripts/MSEndpoints/Get-MSEndpoints.ps1` generates Microsoft 365 endpoint lists:
 
 - Retrieves the current Microsoft 365 endpoints from the Microsoft API
 - Groups the data by:
@@ -48,10 +54,10 @@ These lists contain only the IPs or URLs that use the specified port(s) and are 
 **Examples:**
 
     # Only Exchange IPv4 for port 25
-    ./Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25")
+    ./scripts/MSEndpoints/Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25")
 
     # Multiple configurations (in addition to the category-based lists)
-    ./Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:url:80-443", "skype:url:443")
+    ./scripts/MSEndpoints/Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:url:80-443", "skype:url:443")
 
 **Format:**
 
@@ -100,14 +106,24 @@ If changes are detected, the updated lists are committed to the repository.
 
 ### Local
 
-    # Standard execution (lists are stored in ./lists/ms365)
+#### Microsoft 365 endpoints
+
+    # Standard execution (from scripts/MSEndpoints directory)
+    cd scripts/MSEndpoints
     ./Get-MSEndpoints.ps1
 
+    # Or from repository root
+    ./scripts/MSEndpoints/Get-MSEndpoints.ps1
+
     # With port-specific lists
-    ./Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:ipv6:25")
+    ./scripts/MSEndpoints/Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:ipv6:25")
 
     # With a custom output directory
-    ./Get-MSEndpoints.ps1 -OutputDirectory "./output"
+    ./scripts/MSEndpoints/Get-MSEndpoints.ps1 -OutputDirectory "./output"
+
+#### DoH endpoints
+
+For DoH script usage, parameters, and examples, see: [scripts/doh/README.md](scripts/doh/README.md)
 
 ### GitHub Actions
 
@@ -116,6 +132,12 @@ The workflow can also be triggered manually via the GitHub Actions UI.
 ## Example files
 
 After execution, files like the following will be created:
+
+**DoH lists:**
+
+See [scripts/doh/README.md](scripts/doh/README.md) for details on output files.
+
+**Microsoft 365 lists:**
 
 **Category-based:**
 
@@ -138,6 +160,8 @@ The Microsoft 365 data is retrieved from the official Microsoft API:
 Documentation:
 
 - [Office 365 URLs and IP address ranges](https://docs.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges)
+
+The DoH data is retrieved from the curl project wiki. See [scripts/doh/README.md](scripts/doh/README.md) for details.
 
 ## Future scope
 
