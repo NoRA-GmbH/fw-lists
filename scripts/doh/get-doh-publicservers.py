@@ -134,25 +134,44 @@ class DoHListBuilder:
             
             # Try each DNS server in order (fallback)
             for dns_server in (self.dns_servers if self.dns_servers else [None]):
-                try:
-                    resolver = dns.resolver.Resolver()
-                    if dns_server:
-                        resolver.nameservers = [dns_server]
-                    
-                    answers = resolver.resolve(fqdn, record_type, tcp=False)
-                    for rdata in answers:
-                        ips.append(str(rdata))
-                    resolved = True
+                # Retry up to 2 times for transient errors
+                for attempt in range(2):
+                    try:
+                        resolver = dns.resolver.Resolver()
+                        if dns_server:
+                            resolver.nameservers = [dns_server]
+                        
+                        # Increase timeouts for more reliable lookups
+                        resolver.timeout = 3.0  # 3 seconds per attempt
+                        resolver.lifetime = 10.0  # 10 seconds total
+                        
+                        answers = resolver.resolve(fqdn, record_type, tcp=False)
+                        for rdata in answers:
+                            ips.append(str(rdata))
+                        resolved = True
+                        break  # Success, no need to retry
+                        
+                    except (DNSException, Exception):
+                        if attempt == 0:
+                            continue  # Retry once
+                        else:
+                            break  # Give up on this DNS server
+                
+                if resolved:
                     break  # Success, no need to try other DNS servers
-                    
-                except (DNSException, Exception):
-                    continue  # Try next DNS server
             
             if not resolved and self.dns_servers:
                 # All DNS servers failed for this FQDN
                 pass  # Silently skip
         
-        return sorted(set(ips))
+        # Sort IPs numerically (not lexicographically)
+        unique_ips = set(ips)
+        if record_type == "A":
+            return sorted(unique_ips, key=lambda x: ipaddress.IPv4Address(x))
+        elif record_type == "AAAA":
+            return sorted(unique_ips, key=lambda x: ipaddress.IPv6Address(x))
+        else:
+            return sorted(unique_ips)
 
     def _count_entries(self, path: Path) -> int:
         """Count non-empty lines in file."""
@@ -220,11 +239,22 @@ class DoHListBuilder:
             else:
                 filtered.append(normalized)
         
-        # Deduplicate and sort
-        base_domains = sorted(set(base_domains))
-        excluded = sorted(set(excluded))
-        filtered = sorted(set(filtered))
-        all_items = sorted(set(base_domains + excluded + filtered))
+        # Deduplicate and sort (numerically for IPs, lexicographically for FQDNs)
+        def sort_items(items_list):
+            unique = set(items_list)
+            # Try to sort as IPv4, fallback to IPv6, then string
+            try:
+                return sorted(unique, key=lambda x: ipaddress.IPv4Address(x))
+            except (ValueError, ipaddress.AddressValueError):
+                try:
+                    return sorted(unique, key=lambda x: ipaddress.IPv6Address(x))
+                except (ValueError, ipaddress.AddressValueError):
+                    return sorted(unique)
+        
+        base_domains = sort_items(base_domains)
+        excluded = sort_items(excluded)
+        filtered = sort_items(filtered)
+        all_items = sort_items(base_domains + excluded + filtered)
         
         # Write raw file (always)
         raw_path.parent.mkdir(parents=True, exist_ok=True)
