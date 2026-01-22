@@ -8,9 +8,30 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Python additional
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
 # Generated lists directory (these will be committed by the workflow)
 # Uncomment the line below if you don't want to commit the lists to the repo
 # lists/
+
+# Test/debug output directories
+test-runs/
+output/
+
+# Backup and temporary files
+*.bak
+*.tmp
+*.log
+
+# Script backups
+*.py.bak
+*.ps1.bak
 
 # macOS
 .DS_Store

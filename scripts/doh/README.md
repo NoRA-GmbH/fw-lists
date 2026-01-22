@@ -68,9 +68,10 @@ python get-doh-publicservers.py --skip-ratio-check
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `--output-dir` | `../../lists/doh` | Output directory (relative to script location) |
+| `--output-dir` | `./lists/doh` | Output directory (relative to script location) |
 | `--no-resolve` | `false` | Skip DNS resolution |
 | `--dns-server` | System | Comma-separated DNS servers (fallback mode) |
+| `--lookup-count` | `5` | Number of DNS lookup passes (for round-robin discovery) |
 | `--exclusions` | `[]` | Exclusion entries (FQDNs/IPs) |
 | `--exclusions-file` | - | File with exclusions (one per line) |
 | `--no-clean` | `false` | Do not clean output directory |

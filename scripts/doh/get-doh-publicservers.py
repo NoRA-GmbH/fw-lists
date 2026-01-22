@@ -195,6 +195,7 @@ class DoHListBuilder:
         # Sort IPs numerically (not lexicographically)
         if record_type == "A":
             return sorted(all_ips, key=lambda x: ipaddress.IPv4Address(x))
+            return sorted(all_ips, key=lambda x: ipaddress.IPv4Address(x))
         elif record_type == "AAAA":
             return sorted(all_ips, key=lambda x: ipaddress.IPv6Address(x))
         else:
@@ -453,8 +454,8 @@ Examples:
     
     parser.add_argument(
         "--output-dir",
-        default="../../lists/doh",
-        help="Output directory (default: ../../lists/doh, relative to script location)"
+        default="./lists/doh",
+        help="Output directory (default: ./lists/doh, relative to script location)"
     )
     parser.add_argument(
         "--no-resolve",

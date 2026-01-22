@@ -26,146 +26,36 @@ These lists are generated from official APIs and updated automatically. Currentl
 
 #### DoH (DNS-over-HTTPS) lists
 
-The script `scripts/doh/get-doh-publicservers.py` generates DNS-over-HTTPS (DoH) endpoint lists.
+The script `scripts/doh/get-doh-publicservers.py` generates DNS-over-HTTPS (DoH) endpoint lists in [/lists/doh](lists/doh).
 
 For detailed information, usage examples, and parameters, see: [scripts/doh/README.md](scripts/doh/README.md)
 
 #### Microsoft 365 lists
 
-The script `scripts/MSEndpoints/Get-MSEndpoints.ps1` generates Microsoft 365 endpoint lists:
+The script `scripts/MSEndpoints/Get-MSEndpoints.ps1` generates Microsoft 365 endpoint lists in [/lists/ms365](lists/ms365) from the official Microsoft API.
 
-- Retrieves the current Microsoft 365 endpoints from the Microsoft API
-- Groups the data by:
-  - **Service area**: e.g. `common`, `exchange`, `sharepoint`, `skype` (Teams)
-  - **Address type**: `url`, `ipv4`, `ipv6`
-  - **Category**: `opt` (Optimize), `allow` (Allow), `default` (Default)
-- Creates two types of files:
-  1. **Category-based** (always):  
-     `ms365_{{serviceArea}}_{{addrType}}_{{category}}.txt`
-  2. **Port-based** (optional):  
-     `ms365_{{serviceArea}}_{{addrType}}_port{{port}}.txt`
-- Stores all lists in the directory `/lists/ms365`
-
-#### Port-based lists (optional)
-
-Port-based lists can be enabled via the `-GeneratePortListsFor` parameter.  
-These lists contain only the IPs or URLs that use the specified port(s) and are created **in addition** to the category-based lists.
-
-**Examples:**
-
-    # Only Exchange IPv4 for port 25
-    ./scripts/MSEndpoints/Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25")
-
-    # Multiple configurations (in addition to the category-based lists)
-    ./scripts/MSEndpoints/Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:url:80-443", "skype:url:443")
-
-**Format:**
-
-- `servicearea:addrtype:port`  
-- or `servicearea:addrtype:port1-port2-port3`
-
-Where:
-
-- `servicearea`: `common`, `exchange`, `sharepoint`, `skype`
-- `addrtype`: `url`, `ipv4`, `ipv6`
-- `port`: single port or multiple ports separated by `-`
-
-**Default configuration (no parameter):**  
-Without `-GeneratePortListsFor`, only the category-based lists are generated and no port-specific lists are created.
+For detailed information, usage examples, and parameters, see: [scripts/MSEndpoints/README.md](scripts/MSEndpoints/README.md)
 
 ### Manually maintained lists
 
-In addition to automatically generated lists, this repository can contain manually maintained endpoint lists for:
+For systems without accessible APIs or documented endpoints, lists can be manually maintained. These follow the same file format and naming convention as auto-generated lists.
 
-- Cloud services other than Microsoft 365
-- Internal network zones and custom configurations
-- Third-party services or applications
+#### Philips SpeechLive
 
-Manually maintained lists follow the same naming convention and file format as the auto-generated lists, making them easy to integrate with firewall configurations. Simply add them to the appropriate `/lists/{vendor}` directory.
-
-**Example structure for manually maintained lists:**
-
-```
-lists/
-├── ms365/                              # Auto-generated Microsoft 365 lists
-│   ├── ms365_exchange_url_allow.txt
-│   └── ...
-├── custom/                             # Manually maintained custom lists
-│   ├── custom_internal_ipv4_allow.txt
-│   └── custom_vpn_url_allow.txt
-└── aws/                                # Manually maintained AWS lists (example)
-    └── aws_cloudfront_ipv4_allow.txt
-```
+Philips SpeechLive endpoints in [/lists/phillips](lists/phillips) ([source](https://www.speechlive.com/de/hilfe/thema/erste-schritte/administratoren-/-bueroleiter/whitelist-fuer-speechlive/))
 
 ## Automatic update
 
-The GitHub Actions workflow (`.github/workflows/update-endpoints.yml`) runs the script automatically once per day at 02:00 UTC.  
+The GitHub Actions workflows automatically update the lists:
+
+- **Microsoft 365**: `.github/workflows/update-ms365.yml` runs daily at 02:00 UTC
+- **DoH**: `.github/workflows/update-doh.yml` runs weekly on Sunday at 02:00 UTC
+
 If changes are detected, the updated lists are committed to the repository.
-
-## Manual execution
-
-### Local
-
-#### Microsoft 365 endpoints
-
-    # Standard execution (from scripts/MSEndpoints directory)
-    cd scripts/MSEndpoints
-    ./Get-MSEndpoints.ps1
-
-    # Or from repository root
-    ./scripts/MSEndpoints/Get-MSEndpoints.ps1
-
-    # With port-specific lists
-    ./scripts/MSEndpoints/Get-MSEndpoints.ps1 -GeneratePortListsFor @("exchange:ipv4:25", "exchange:ipv6:25")
-
-    # With a custom output directory
-    ./scripts/MSEndpoints/Get-MSEndpoints.ps1 -OutputDirectory "./output"
-
-#### DoH endpoints
-
-For DoH script usage, parameters, and examples, see: [scripts/doh/README.md](scripts/doh/README.md)
-
-### GitHub Actions
-
-The workflow can also be triggered manually via the GitHub Actions UI.
-
-## Example files
-
-After execution, files like the following will be created:
-
-**DoH lists:**
-
-See [scripts/doh/README.md](scripts/doh/README.md) for details on output files.
-
-**Microsoft 365 lists:**
-
-**Category-based:**
-
-- `ms365_exchange_url_opt.txt` – URLs for Exchange (Optimize category)
-- `ms365_sharepoint_ipv4_allow.txt` – IPv4 addresses for SharePoint (Allow category)
-- `ms365_common_ipv6_default.txt` – IPv6 addresses for common services (Default category)
-
-**Port-based (if configured):**
-
-- `ms365_exchange_ipv4_port25.txt` – IPv4 addresses for Exchange that use port 25
-- `ms365_exchange_url_port80.txt` – URLs for Exchange that use port 80
-- `ms365_skype_url_port443.txt` – URLs for Skype/Teams that use port 443
-
-## Data source
-
-The Microsoft 365 data is retrieved from the official Microsoft API:
-
-- `https://endpoints.office.com/endpoints/worldwide`
-
-Documentation:
-
-- [Office 365 URLs and IP address ranges](https://docs.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges)
-
-The DoH data is retrieved from the curl project wiki. See [scripts/doh/README.md](scripts/doh/README.md) for details.
 
 ## Future scope
 
-Currently this repository only contains Microsoft 365 endpoint lists, but the name **fw-lists** is intentionally generic.
+The name **fw-lists** is intentionally generic to accommodate various endpoint sources.
 
 Planned and possible extensions include:
 
