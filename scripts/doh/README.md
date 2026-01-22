@@ -145,8 +145,8 @@ jobs:
 **Main DoH Script (`get-doh-publicservers.py`):**  
 Licensed under MIT License (same as main repository).
 
-**Scraper Script (`scrape-doh-providers.py`):**  
+**Scraper Script (`third_party/encrypted_dns_resolvers/scrape-doh-providers.py`):**  
 Licensed under GPL 3.0, based on [cslev/encrypted_dns_resolvers](https://github.com/cslev/encrypted_dns_resolvers).  
-See [LICENSE-scrape](LICENSE-scrape) for full GPL 3.0 license text.
+See [../../third_party/encrypted_dns_resolvers/LICENSE](../../third_party/encrypted_dns_resolvers/LICENSE) for full GPL 3.0 license text.
 
 **Important:** The scraper is a separate component under GPL 3.0. The main DoH script and its output remain under MIT License.

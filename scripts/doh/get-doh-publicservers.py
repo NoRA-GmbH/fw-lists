@@ -328,7 +328,7 @@ class DoHListBuilder:
             print(f"Cleaned: {self.output_dir}")
         
         # Run scraper
-        scraper_path = Path(__file__).parent / "scrape-doh-providers.py"
+        scraper_path = Path(__file__).parent.parent.parent / "third_party" / "encrypted_dns_resolvers" / "scrape-doh-providers.py"
         if not scraper_path.exists():
             print(f"ERROR: Scraper not found: {scraper_path}", file=sys.stderr)
             sys.exit(1)
