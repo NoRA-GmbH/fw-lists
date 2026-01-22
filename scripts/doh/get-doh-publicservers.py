@@ -36,6 +36,7 @@ class DoHListBuilder:
         warn_change_ratio: float,
         skip_ratio_check: bool,
         filter_base_domains: bool,
+        lookup_count: int = 5,
     ):
         self.output_dir = Path(output_dir).resolve()
         self.resolve_ips = resolve_ips
@@ -44,6 +45,7 @@ class DoHListBuilder:
         self.warn_change_ratio = warn_change_ratio
         self.skip_ratio_check = skip_ratio_check
         self.filter_base_domains = filter_base_domains
+        self.lookup_count = lookup_count
         
         # Load exclusions
         self.exclusions = self._load_exclusions(exclusions, exclusions_file)
@@ -129,12 +131,11 @@ class DoHListBuilder:
     def _resolve_fqdns(self, fqdns: List[str], record_type: str) -> List[str]:
         """Resolve FQDNs to IPs with multiple passes to capture round-robin pools.
         
-        Performs 5 passes over all FQDNs (not 5 lookups per FQDN immediately).
+        Performs multiple passes over all FQDNs (not multiple lookups per FQDN immediately).
         Time between passes allows DNS caches to expire and round-robin to rotate.
         This is critical for blocking lists - missing IPs allow firewall bypass.
         """
         all_ips = set()
-        lookup_count = 5  # Number of passes over all FQDNs
         unique_fqdns = sorted(set(fqdns))
         
         def resolve_single_lookup(fqdn: str, pass_num: int) -> Set[str]:
@@ -174,7 +175,7 @@ class DoHListBuilder:
             return fqdn_ips  # Return empty set or partial results
         
         # Multiple passes: Query all FQDNs in each pass with time between passes
-        for pass_num in range(lookup_count):
+        for pass_num in range(self.lookup_count):
             # Parallel execution within each pass
             with ThreadPoolExecutor(max_workers=20) as executor:
                 # Submit all FQDNs for this pass
@@ -465,6 +466,12 @@ Examples:
         help="DNS servers for lookups, comma-separated (default: system resolver)"
     )
     parser.add_argument(
+        "--lookup-count",
+        type=int,
+        default=5,
+        help="Number of lookup passes over all FQDNs (default: 5)"
+    )
+    parser.add_argument(
         "--exclusions",
         nargs="+",
         default=[],
@@ -513,6 +520,7 @@ Examples:
         warn_change_ratio=args.warn_change_ratio,
         skip_ratio_check=args.skip_ratio_check,
         filter_base_domains=args.filter_base_domains,
+        lookup_count=args.lookup_count,
     )
     
     builder.run()
