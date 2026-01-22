@@ -129,18 +129,24 @@ class DoHListBuilder:
     def _resolve_fqdns(self, fqdns: List[str], record_type: str) -> List[str]:
         """Resolve FQDNs to IPs with parallel lookups to capture round-robin pools.
         
-        Performs 5 lookups per FQDN in parallel to discover all IPs in DNS round-robin.
+        Performs 5 lookups per FQDN in parallel, rotating through DNS servers.
         This is critical for blocking lists - missing IPs allow firewall bypass.
         """
         all_ips = set()
         lookup_count = 5  # Lookups per FQDN to discover round-robin IPs
         
         def resolve_single_lookup(fqdn: str, lookup_num: int) -> Set[str]:
-            """Single DNS lookup for one FQDN."""
+            """Single DNS lookup for one FQDN with rotating DNS server."""
             fqdn_ips = set()
             
-            # Try each DNS server in order (fallback)
-            for dns_server in (self.dns_servers if self.dns_servers else [None]):
+            # Rotate DNS server based on lookup number for better round-robin discovery
+            dns_servers = self.dns_servers if self.dns_servers else [None]
+            primary_dns = dns_servers[lookup_num % len(dns_servers)]
+            
+            # Try primary DNS server (rotated), then fallback to others
+            servers_to_try = [primary_dns] + [s for s in dns_servers if s != primary_dns]
+            
+            for dns_server in servers_to_try:
                 # Retry up to 2 times for transient errors
                 for attempt in range(2):
                     try:
