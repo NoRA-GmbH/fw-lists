@@ -17,6 +17,7 @@ import subprocess
 import ipaddress
 from pathlib import Path
 from typing import List, Set, Tuple
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import dns.resolver
 from dns.exception import DNSException
 
@@ -126,59 +127,60 @@ class DoHListBuilder:
         return excl_set
 
     def _resolve_fqdns(self, fqdns: List[str], record_type: str) -> List[str]:
-        """Resolve FQDNs to IPs with multiple lookups to capture round-robin pools.
+        """Resolve FQDNs to IPs with parallel lookups to capture round-robin pools.
         
-        Performs 5 lookups per FQDN to discover all IPs in DNS round-robin configurations.
+        Performs 5 lookups per FQDN in parallel to discover all IPs in DNS round-robin.
         This is critical for blocking lists - missing IPs allow firewall bypass.
         """
         all_ips = set()
         lookup_count = 5  # Lookups per FQDN to discover round-robin IPs
         
-        for fqdn in sorted(set(fqdns)):
+        def resolve_single_lookup(fqdn: str, lookup_num: int) -> Set[str]:
+            """Single DNS lookup for one FQDN."""
             fqdn_ips = set()
             
-            # Multiple lookups to capture all IPs in DNS round-robin pools
-            for lookup_num in range(lookup_count):
-                resolved = False
-                
-                # Try each DNS server in order (fallback)
-                for dns_server in (self.dns_servers if self.dns_servers else [None]):
-                    # Retry up to 2 times for transient errors
-                    for attempt in range(2):
-                        try:
-                            resolver = dns.resolver.Resolver()
-                            if dns_server:
-                                resolver.nameservers = [dns_server]
-                            
-                            # Increase timeouts for more reliable lookups
-                            resolver.timeout = 3.0  # 3 seconds per attempt
-                            resolver.lifetime = 10.0  # 10 seconds total
-                            
-                            answers = resolver.resolve(fqdn, record_type, tcp=False)
-                            for rdata in answers:
-                                fqdn_ips.add(str(rdata))
-                            resolved = True
-                            break  # Success, no need to retry
-                            
-                        except (DNSException, Exception):
-                            if attempt == 0:
-                                continue  # Retry once
-                            else:
-                                break  # Give up on this DNS server
-                    
-                    if resolved:
-                        break  # Success, no need to try other DNS servers
-                
-                if not resolved:
-                    break  # If first lookup fails, skip remaining lookups
-                
-                # Small delay between lookups to help discover round-robin IPs
-                if lookup_num < lookup_count - 1:
-                    import time
-                    time.sleep(0.1)
+            # Try each DNS server in order (fallback)
+            for dns_server in (self.dns_servers if self.dns_servers else [None]):
+                # Retry up to 2 times for transient errors
+                for attempt in range(2):
+                    try:
+                        resolver = dns.resolver.Resolver()
+                        if dns_server:
+                            resolver.nameservers = [dns_server]
+                        
+                        # Increase timeouts for more reliable lookups
+                        resolver.timeout = 3.0  # 3 seconds per attempt
+                        resolver.lifetime = 10.0  # 10 seconds total
+                        
+                        answers = resolver.resolve(fqdn, record_type, tcp=False)
+                        for rdata in answers:
+                            fqdn_ips.add(str(rdata))
+                        return fqdn_ips  # Success
+                        
+                    except (DNSException, Exception):
+                        if attempt == 0:
+                            continue  # Retry once
+                        else:
+                            break  # Give up on this DNS server
             
-            # Add all discovered IPs for this FQDN to the global set
-            all_ips.update(fqdn_ips)
+            return fqdn_ips  # Return empty set or partial results
+        
+        # Parallel execution: Multiple FQDNs and multiple lookups per FQDN
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            # Submit all lookup tasks
+            future_to_fqdn = {}
+            for fqdn in sorted(set(fqdns)):
+                for lookup_num in range(lookup_count):
+                    future = executor.submit(resolve_single_lookup, fqdn, lookup_num)
+                    future_to_fqdn[future] = fqdn
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_fqdn):
+                try:
+                    ips = future.result()
+                    all_ips.update(ips)
+                except Exception:
+                    pass  # Silently skip failed lookups
         
         # Sort IPs numerically (not lexicographically)
         if record_type == "A":
