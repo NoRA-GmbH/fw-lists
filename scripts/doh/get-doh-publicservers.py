@@ -127,21 +127,23 @@ class DoHListBuilder:
         return excl_set
 
     def _resolve_fqdns(self, fqdns: List[str], record_type: str) -> List[str]:
-        """Resolve FQDNs to IPs with parallel lookups to capture round-robin pools.
+        """Resolve FQDNs to IPs with multiple passes to capture round-robin pools.
         
-        Performs 5 lookups per FQDN in parallel, rotating through DNS servers.
+        Performs 5 passes over all FQDNs (not 5 lookups per FQDN immediately).
+        Time between passes allows DNS caches to expire and round-robin to rotate.
         This is critical for blocking lists - missing IPs allow firewall bypass.
         """
         all_ips = set()
-        lookup_count = 5  # Lookups per FQDN to discover round-robin IPs
+        lookup_count = 5  # Number of passes over all FQDNs
+        unique_fqdns = sorted(set(fqdns))
         
-        def resolve_single_lookup(fqdn: str, lookup_num: int) -> Set[str]:
+        def resolve_single_lookup(fqdn: str, pass_num: int) -> Set[str]:
             """Single DNS lookup for one FQDN with rotating DNS server."""
             fqdn_ips = set()
             
-            # Rotate DNS server based on lookup number for better round-robin discovery
+            # Rotate DNS server based on pass number for better round-robin discovery
             dns_servers = self.dns_servers if self.dns_servers else [None]
-            primary_dns = dns_servers[lookup_num % len(dns_servers)]
+            primary_dns = dns_servers[pass_num % len(dns_servers)]
             
             # Try primary DNS server (rotated), then fallback to others
             servers_to_try = [primary_dns] + [s for s in dns_servers if s != primary_dns]
@@ -171,22 +173,23 @@ class DoHListBuilder:
             
             return fqdn_ips  # Return empty set or partial results
         
-        # Parallel execution: Multiple FQDNs and multiple lookups per FQDN
-        with ThreadPoolExecutor(max_workers=20) as executor:
-            # Submit all lookup tasks
-            future_to_fqdn = {}
-            for fqdn in sorted(set(fqdns)):
-                for lookup_num in range(lookup_count):
-                    future = executor.submit(resolve_single_lookup, fqdn, lookup_num)
+        # Multiple passes: Query all FQDNs in each pass with time between passes
+        for pass_num in range(lookup_count):
+            # Parallel execution within each pass
+            with ThreadPoolExecutor(max_workers=20) as executor:
+                # Submit all FQDNs for this pass
+                future_to_fqdn = {}
+                for fqdn in unique_fqdns:
+                    future = executor.submit(resolve_single_lookup, fqdn, pass_num)
                     future_to_fqdn[future] = fqdn
-            
-            # Collect results as they complete
-            for future in as_completed(future_to_fqdn):
-                try:
-                    ips = future.result()
-                    all_ips.update(ips)
-                except Exception:
-                    pass  # Silently skip failed lookups
+                
+                # Collect results as they complete
+                for future in as_completed(future_to_fqdn):
+                    try:
+                        ips = future.result()
+                        all_ips.update(ips)
+                    except Exception:
+                        pass  # Silently skip failed lookups
         
         # Sort IPs numerically (not lexicographically)
         if record_type == "A":
