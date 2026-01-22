@@ -380,28 +380,18 @@ class DoHListBuilder:
         base_domain_ipv6 = set()
         
         if self.resolve_ips:
-            # Resolve IPv4 and IPv6 in parallel for better performance
-            from concurrent.futures import ThreadPoolExecutor
+            print("Resolving IPv4...")
+            ipv4 = self._resolve_fqdns(fqdns, "A")
+            print(f"  Resolved {len(ipv4)} IPv4")
             
-            with ThreadPoolExecutor(max_workers=2) as executor:
-                print("Resolving IPv4 and IPv6 in parallel...")
-                future_ipv4 = executor.submit(self._resolve_fqdns, fqdns, "A")
-                future_ipv6 = executor.submit(self._resolve_fqdns, fqdns, "AAAA")
-                
-                ipv4 = future_ipv4.result()
-                ipv6 = future_ipv6.result()
-                
-                print(f"  Resolved {len(ipv4)} IPv4")
-                print(f"  Resolved {len(ipv6)} IPv6")
+            print("Resolving IPv6...")
+            ipv6 = self._resolve_fqdns(fqdns, "AAAA")
+            print(f"  Resolved {len(ipv6)} IPv6")
             
             if base_domain_fqdns:
                 print("Resolving base domain IPs...")
-                with ThreadPoolExecutor(max_workers=2) as executor:
-                    future_bd_ipv4 = executor.submit(self._resolve_fqdns, base_domain_fqdns, "A")
-                    future_bd_ipv6 = executor.submit(self._resolve_fqdns, base_domain_fqdns, "AAAA")
-                    
-                    base_domain_ipv4 = set(future_bd_ipv4.result())
-                    base_domain_ipv6 = set(future_bd_ipv6.result())
+                base_domain_ipv4 = set(self._resolve_fqdns(base_domain_fqdns, "A"))
+                base_domain_ipv6 = set(self._resolve_fqdns(base_domain_fqdns, "AAAA"))
         
         # Check ratios
         if not self.skip_ratio_check:
