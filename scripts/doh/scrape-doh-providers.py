@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 #
 ###################################################################################################
-# Written by kimbo, downloaded from: https://gist.github.com/kimbo/dd65d539970e3a28a10628f15398247b
+# Based on work from: https://github.com/cslev/encrypted_dns_resolvers
+# Originally written by kimbo: https://gist.github.com/kimbo/dd65d539970e3a28a10628f15398247b
+#
+# This file is licensed under GPL 3.0 (see LICENSE-scrape)
+# Copyright (C) cslev and contributors
 ###################################################################################################
 #
 # Scrape Doh provider URLs from Curl's DNS-over-HTTPS wiki (https://raw.githubusercontent.com/wiki/curl/curl/DNS-over-HTTPS).

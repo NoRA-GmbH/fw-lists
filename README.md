@@ -72,4 +72,6 @@ New list types should follow similar principles:
 
 ## License
 
-See the [LICENSE](LICENSE) file.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+**Note:** The DoH scraper script (`scripts/doh/scrape-doh-providers.py`) is licensed under GPL 3.0 as it is based on [cslev/encrypted_dns_resolvers](https://github.com/cslev/encrypted_dns_resolvers). See [scripts/doh/LICENSE-scrape](scripts/doh/LICENSE-scrape) for details. The scraper is a separate component; all other scripts and generated lists remain under MIT License.
