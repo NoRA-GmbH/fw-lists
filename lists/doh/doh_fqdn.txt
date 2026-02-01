@@ -63,7 +63,6 @@ dns.brahma.world
 dns.brembeck.cloud
 dns.busold.ws
 dns.caspervk.net
-dns.cctld.kg
 dns.cert.ee
 dns.chenu.ch
 dns.christerwaren.fi
@@ -81,11 +80,9 @@ dns.digitale-gesellschaft.ch
 dns.digitalsize.net
 dns.dnshome.de
 dns.dremaxx.de
-dns.dynx.pro
 dns.elemental.software
 dns.eliv.kr
 dns.faked.org
-dns.fancyorg.at
 dns.farshidhakimy.de
 dns.flatuslifir.is
 dns.floriantinney.de
@@ -93,7 +90,6 @@ dns.flymc.cc
 dns.foxyfy.net
 dns.froth.zone
 dns.gamban.com
-dns.girino.org
 dns.glf.wtf
 dns.google
 dns.guard.io
@@ -147,11 +143,9 @@ dns.surfsharkdns.com
 dns.switch.ch
 dns.szpadel.ovh
 dns.t53.de
-dns.technologycage.com
 dns.telekom.de
 dns.tipsy.coffee
 dns.tls-data.de
-dns.twnic.tw
 dns.unx.io
 dns.vaioswolke.xyz
 dns.w3ctag.org
