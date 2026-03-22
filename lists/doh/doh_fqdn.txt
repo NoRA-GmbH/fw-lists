@@ -48,6 +48,7 @@ de01.dns4me.net
 dns.a47.me
 dns.aa.net.uk
 dns.adguard-dns.com
+dns.adnull.com
 dns.akbxr.com
 dns.alidns.com
 dns.anon.no
@@ -316,6 +317,7 @@ us-nyc-w-p-1.nashkan.net
 us01.dns4me.net
 us02.dns4me.net
 v.recipes
+v0dka.ru
 vie01.dnscry.pt
 vno01.dnscry.pt
 waw02.dnscry.pt

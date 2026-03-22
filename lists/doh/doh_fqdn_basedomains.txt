@@ -29,6 +29,7 @@ revelio.top
 safeservedns.com
 sunnygyl.com
 v.recipes
+v0dka.ru
 wikimedia-dns.org
 xn--durhre-yxa.de
 zdn.ro
