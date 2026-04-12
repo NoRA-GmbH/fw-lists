@@ -91,6 +91,7 @@ dns.glf.wtf
 dns.google
 dns.guard.io
 dns.haka.se
+dns.hostux.net
 dns.inforlogia.com
 dns.kapite.in
 dns.kernel-error.de
