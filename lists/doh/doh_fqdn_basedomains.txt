@@ -1,5 +1,4 @@
-﻿123000123.xyz
-3dns.eu
+﻿3dns.eu
 8888.google
 adfreedns.top
 bazooki-infra.dev
