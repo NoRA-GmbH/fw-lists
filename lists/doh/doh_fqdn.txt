@@ -49,7 +49,6 @@ dns.anon.no
 dns.applewebkit.dev
 dns.asterimoon.com
 dns.belnet.be
-dns.bitdefender.net
 dns.bitservices.io
 dns.blokada.org
 dns.bmwhocking.com
@@ -62,7 +61,6 @@ dns.chenu.ch
 dns.christerwaren.fi
 dns.chunghwamc.com
 dns.comss.one
-dns.csaonline.de
 dns.cynthialabs.net
 dns.d94.xyz
 dns.datenquark.de
@@ -234,7 +232,6 @@ pdx01.dnscry.pt
 per.adfilter.net
 phx01.dnscry.pt
 pihole.aws.ketan.dev
-pluton.plan9-dns.com
 pooblet.co.za
 privacy.plumedns.com
 private.canadianshield.cira.ca
