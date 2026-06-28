@@ -195,7 +195,6 @@ gb-lon-w-p-2.nashkan.net
 geg01.dnscry.pt
 gibblets.top
 glacius.top
-gru01.dnscry.pt
 gva01.dnscry.pt
 haf01.dnscry.pt
 han01.dnscry.pt
@@ -247,7 +246,6 @@ rfree1.blue-shield.at
 rfree2.blue-shield.at
 ro-buc-w-p-1.nashkan.net
 root.hagezi.org
-router.comss.one
 sa01.dns4me.net
 safeservedns.com
 sea01.dnscry.pt
