@@ -36,6 +36,12 @@ The script `scripts/MSEndpoints/Get-MSEndpoints.ps1` generates Microsoft 365 end
 
 For detailed information, usage examples, and parameters, see: [scripts/MSEndpoints/README.md](scripts/MSEndpoints/README.md)
 
+#### OpenAI ChatGPT connector lists
+
+The script `scripts/openai/get-openai-chatgpt-connectors.py` generates OpenAI ChatGPT connector egress IP lists in [/lists/openai](lists/openai) from the official OpenAI JSON source.
+
+For detailed information, usage examples, and parameters, see: [scripts/openai/README.md](scripts/openai/README.md)
+
 ### Manually maintained lists
 
 For systems without accessible APIs or documented endpoints, lists can be manually maintained. These follow the same file format and naming convention as auto-generated lists.
@@ -48,8 +54,9 @@ Philips SpeechLive endpoints in [/lists/phillips](lists/phillips) ([source](http
 
 The GitHub Actions workflows automatically update the lists:
 
-- **Microsoft 365**: `.github/workflows/update-ms365.yml` runs daily at 02:00 UTC
+- **Microsoft 365**: `.github/workflows/update-endpoints.yml` runs daily at 02:00 UTC
 - **DoH**: `.github/workflows/update-doh.yml` runs weekly on Sunday at 02:00 UTC
+- **OpenAI ChatGPT connectors**: `.github/workflows/update-openai.yml` runs daily at 02:30 UTC
 
 If changes are detected, the updated lists are committed to the repository.
 

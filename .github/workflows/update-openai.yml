@@ -1,0 +1,50 @@
+name: Update OpenAI ChatGPT Connector Endpoints
+
+on:
+  # Run daily at 2:30 AM UTC
+  schedule:
+    - cron: '30 2 * * *'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  update-openai:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run OpenAI connector script
+        run: |
+          python scripts/openai/get-openai-chatgpt-connectors.py --output-dir lists/openai
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add lists/openai/
+
+          # Check if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "update openai connector endpoints ($(date +'%Y-%m-%d'))"
+            git push
+          fi
+
+      - name: Upload lists as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-chatgpt-connector-lists
+          path: lists/openai/
+          retention-days: 90
