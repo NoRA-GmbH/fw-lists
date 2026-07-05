@@ -5,6 +5,7 @@ abn01.dnscry.pt
 ada.openbld.net
 adblock.dns.mullvad.net
 adblock.krctech.dev
+adblock.mydns.network
 addns1.m-it.ro
 adfree.usableprivacy.net
 adfreedns.top
@@ -122,7 +123,6 @@ dns.smartguard.io
 dns.startupstack.tech
 dns.stirringphoto.com
 dns.stormycloud.org
-dns.superstefan.win
 dns.surfsharkdns.com
 dns.switch.ch
 dns.szpadel.ovh
@@ -164,7 +164,6 @@ doh.domreg.lt
 doh.familyshield.opendns.com
 doh.ffmuc.net
 doh.futa.gg
-doh.kel.pe
 doh.lacontrevoie.fr
 doh.li
 doh.libredns.gr
@@ -187,10 +186,12 @@ family.adguard-dns.com
 family.canadianshield.cira.ca
 family.cloudflare-dns.com
 family.dns.mullvad.net
+family.mydns.network
 fidelius.top
 fra01.dnscry.pt
 fra02.dnscry.pt
 freedns.controld.com
+freedom.mydns.network
 gb-lon-w-p-2.nashkan.net
 geg01.dnscry.pt
 gibblets.top
@@ -227,6 +228,7 @@ nz01.dns4me.net
 odvr.nic.cz
 omr01.dnscry.pt
 par01.dnscry.pt
+paranoia.mydns.network
 pdx01.dnscry.pt
 per.adfilter.net
 phx01.dnscry.pt
@@ -268,7 +270,6 @@ tiger.dns.qwer.pw
 tll01.dnscry.pt
 tpa01.dnscry.pt
 trf01.dnscry.pt
-tsm01.dnscry.pt
 uk01.dns4me.net
 unfiltered.adguard-dns.com
 unfiltered.joindns4.eu
