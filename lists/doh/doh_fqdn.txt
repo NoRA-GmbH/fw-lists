@@ -26,7 +26,6 @@ base.dns.mullvad.net
 bazooki-infra.dev
 bne01.dnscry.pt
 bog01.dnscry.pt
-bom01.dnscry.pt
 bru01.dnscry.pt
 bts01.dnscry.pt
 ca01.dns4me.net
@@ -50,6 +49,7 @@ dns.anon.no
 dns.applewebkit.dev
 dns.asterimoon.com
 dns.belnet.be
+dns.bezmezhau.com
 dns.bitservices.io
 dns.blokada.org
 dns.bmwhocking.com
@@ -125,7 +125,6 @@ dns.stirringphoto.com
 dns.stormycloud.org
 dns.surfsharkdns.com
 dns.switch.ch
-dns.szpadel.ovh
 dns.t53.de
 dns.telekom.de
 dns.tipsy.coffee
@@ -209,7 +208,6 @@ juuri.hagezi.org
 kiv01.dnscry.pt
 kronos.plan9-dns.com
 las01.dnscry.pt
-lion.dns.qwer.pw
 loadlow.me
 lon01.dnscry.pt
 mad01.dnscry.pt
@@ -232,7 +230,6 @@ paranoia.mydns.network
 pdx01.dnscry.pt
 per.adfilter.net
 phx01.dnscry.pt
-pihole.aws.ketan.dev
 pooblet.co.za
 privacy.plumedns.com
 private.canadianshield.cira.ca
@@ -261,7 +258,6 @@ sjc01.dnscry.pt
 sky.rethinkdns.com
 slc01.dnscry.pt
 sof01.dnscry.pt
-sto01.dnscry.pt
 sunnygyl.com
 syd.adfilter.net
 syd02.dnscry.pt
